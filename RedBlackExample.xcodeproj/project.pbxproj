@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		CFBD33CD1CD8CEC900140CEA /* RedBlackExample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RedBlackExample; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFBD33D01CD8CEC900140CEA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		CFBD33D71CD8CEE800140CEA /* RedBlackTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RedBlackTree.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				CFBD33D01CD8CEC900140CEA /* main.cpp */,
+				CFBD33D71CD8CEE800140CEA /* RedBlackTree.h */,
 			);
 			path = RedBlackExample;
 			sourceTree = "<group>";
