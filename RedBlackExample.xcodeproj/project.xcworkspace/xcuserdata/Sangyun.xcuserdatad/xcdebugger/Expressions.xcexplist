@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "RedBlackTree&lt;int, elem&gt;::find_recursive(int, RedBlackTree&lt;int, elem&gt;::Position const&amp;, int) const:RedBlackTree.h">
+         <PersistentStrings>
+            <PersistentString
+               value = "p_id">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "RedBlackTree&lt;int, elem&gt;::insert(int, elem):RedBlackTree.h">
+         <PersistentStrings>
+            <PersistentString
+               value = "p_id">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

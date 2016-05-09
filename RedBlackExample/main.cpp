@@ -67,23 +67,21 @@ public:
 
 int main()
 {
-    //freopen("input.txt", "r", stdin);
+    freopen("query_10k.txt", "r", stdin);
+    //freopen("output.txt", "w+", stdout);
+    string filename;
+    cout << "입력파일의 이름을 입력하세요: ";
+    cin >> filename;
     FILE * pFile;
-    pFile = fopen ("memberlist_10k.txt","r");
+    pFile = fopen (filename.c_str(),"r");
     
     char query[3], name[22], phone[13];
     int id, x, y, grade, sumPrice, date, price, num;
     RedBlackTree < int, elem > rbt;
     
-    int i = 0;
     while(fscanf(pFile, "%d %s %s %d %d %d %d", &id, name, phone, &x, &y, &grade, &sumPrice) != EOF)
-    {
-        printf("%d %s %s %d %d %d %d\n", id, name, phone, x, y, grade, sumPrice);
-        rbt.insert(id, elem(name, phone, x, y, grade, sumPrice));
-    }
+    { rbt.insert(id, elem(name, phone, x, y, grade, sumPrice)); }
     
-    
-    return 0;
     while(scanf("%s", query) != EOF)
     {
         switch(query[0])
