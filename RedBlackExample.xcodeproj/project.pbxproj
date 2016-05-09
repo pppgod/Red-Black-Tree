@@ -26,6 +26,7 @@
 		CFBD33CD1CD8CEC900140CEA /* RedBlackExample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RedBlackExample; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFBD33D01CD8CEC900140CEA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		CFBD33D71CD8CEE800140CEA /* RedBlackTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RedBlackTree.h; sourceTree = "<group>"; };
+		CFD56E0F1CE0843B00729992 /* input.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +61,7 @@
 			children = (
 				CFBD33D01CD8CEC900140CEA /* main.cpp */,
 				CFBD33D71CD8CEE800140CEA /* RedBlackTree.h */,
+				CFD56E0F1CE0843B00729992 /* input.txt */,
 			);
 			path = RedBlackExample;
 			sourceTree = "<group>";
@@ -90,6 +92,9 @@
 		CFBD33C51CD8CEC900140CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					New,
+				);
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = LeeSangyun;
 				TargetAttributes = {
@@ -241,6 +246,7 @@
 				CFBD33D61CD8CEC900140CEA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

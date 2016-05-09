@@ -10,8 +10,8 @@
 #define RedBlackTree_h
 
 #include <iostream>
-#include <list>
-#include <string>
+#include <algorithm>
+//#include <string>
 using namespace std;
 
 #define RED true
@@ -32,7 +32,7 @@ protected:
         bool color;
         
         // external node
-        node() : par(NULL), left(NULL), right(NULL), identifier(NULL), elt(NULL)
+        node() : par(NULL), left(NULL), right(NULL), identifier(NULL)
         { color = BLACK; }
         
         node(Key _identifier, Value _elt) : identifier(_identifier), elt(_elt)
@@ -48,18 +48,19 @@ protected:
     
 public:
     class Position {					// position in the tree
-    private:
+    public:
         node* v;						// pointer to the node
     public:
-        Position(node* _v = NULL) : v(_v) { }		// constructor
+        Position(node* _v = NULL) : v(_v){} // constructor
         Value& operator*()					// get element
         { return v->elt; }
         Position operator++()
         {
+            //puts("!!");
             if(!(this->right()).isExternal())
             {
                 Position p = this->right();
-                while(!p.left() -> isExternal())
+                while(!(p.left().isExternal()))
                 { p = p.left(); }
                 return p;
             }
@@ -67,14 +68,22 @@ public:
             Position par = this->parent();
             while(*(par.v) < *(this->v))
             {
-                par = par.parent();
                 if(par.isroot())
                 { break; }
+                par = par.parent();
             }
             if(*(par.v) < *(this->v))
             { return this->right(); }
             else
             { return par; }
+        }
+        bool operator != (const Position& p)
+        {
+            if(this->v == NULL) return false;
+            if(this->v != p.v)
+            { return true; }
+            else
+            { return false; }
         }
         Position left() const				// get left child
         { return Position(v->left); }
@@ -103,8 +112,13 @@ public:
     Position end() const;
     inline bool empty() const;
     inline int size() const;
-    void insert(const Key K, Value V);
-    int find(const Key K, Value* v) const;
+    /*
+     const Key K 삽입할 키값 K
+     Value V 삽입할 value값
+     return : 노드의 깊이, 삽입 성공 여부
+     */
+    pair < int, bool > insert(const Key K, Value V);
+    pair < Value, int > find(const Key K) const;
   //  friend class Position;
 // protected 멤버함수
 protected:
@@ -113,7 +127,7 @@ protected:
     inline Position sibling(const Key child_key, const Position& p) const;
     void restructuring(Position& p);
     void recoloring(Position& p);
-    Position find_recursive(const Key K, const Position& p) const;
+    pair < Position, int > find_recursive(const Key K, const Position& p, int depth) const;
     void inorder(const Position& p) const;
 };
 
@@ -127,8 +141,9 @@ typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::root()
 template < typename Key, typename Value >
 typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::begin() const
 {
+    if(empty()) return NULL;
     Position p = root();
-    while(!(p.left())->isExternal())
+    while(!(p.left().isExternal()))
     {   p = p.left(); }
     return p;
 }
@@ -136,6 +151,8 @@ typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::begin(
 template < typename Key, typename Value >
 typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::end() const
 {
+    if(empty()) return NULL;
+    
     Position p = root();
     while(!p.isExternal())
     {   p = p.right(); }
@@ -162,52 +179,72 @@ void RedBlackTree< Key, Value >::expandExternal(const Position& p)
 }
 
 template < typename Key, typename Value >
-void RedBlackTree< Key, Value >::insert(const Key K, Value V)
+pair < int, bool > RedBlackTree< Key, Value >::insert(const Key K, Value V)
 {
+    // tree가 비어있는 경우
     if(empty())
     {
         _root = new node;
         _root->identifier = K;
         _root->elt = V;
-        _root->color = BLACK;
-        cout << _root->identifier << endl;
+        _root->color = BLACK; // root property
         nodeSize++;
-        expandExternal(root());
-        
-        return ;
+        expandExternal(root()); // 루트에 external 노드를 추가한다.
+        return pair< int, bool >(1, true);
     }
-    Position p = insert_recursive(K, root());
-    p.v->identifier = K;
-    p.v->elt = V;
-    p.v->color = RED;
-    expandExternal(p);
-    nodeSize++;
-    Position p_parent = p.parent();
-    while(p_parent.v->color == RED)
+    printf("%d\n", _root->identifier);
+    puts("finding");
+    // 새로운 노드가 들어갈 위치를 찾는다.
+    pair < Position, int > rec = find_recursive(K, root(), 1);
+    puts("finding end");
+    Position p = rec.first;
+    // 이미 키 값이 존재하는 경우
+    puts("externaling");
+    if(!p.isExternal())
+    { return pair < int, bool >(rec.second, false); }
+    else
     {
-        if(sibling(p.v->identifier, p_parent).v->color == RED)
-        { recoloring(p_parent); }
-        else
+        puts("!!");
+        p.v->identifier = K;
+        p.v->elt = V;
+        p.v->color = RED; // 추가된 노드는 처음에는 레드다
+        nodeSize++;
+        expandExternal(p);
+        Position p_parent = p.parent();
+        
+        // double red 발생시
+        while(p_parent.v->color == RED)
         {
-            restructuring(p);
-            break;
+            if(sibling(p.v->identifier, p_parent).v->color == RED)
+            { recoloring(p_parent); }
+            else
+            {
+                restructuring(p);
+                break;
+            }
+            p_parent = p_parent.parent();
         }
-        p_parent = p_parent.parent();
+        return pair < int, bool >(find_recursive(K, root(), 1).second, true);
     }
 }
 
-template < typename Key, typename Value >
-typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::insert_recursive(const Key K, const Position &p) const
-{
-    // external node인 경우 재귀 종료
-    if(p.isExternal())
-    { return p; }
-    // 재귀적으로 함수 호출
-    if(p.v->identifier > K)
-    { return insert_recursive(K, p.left()); }
-    else
-    { return insert_recursive(K, p.right()); }
-}
+//template < typename Key, typename Value >
+//typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::insert_recursive(const Key K, const Position &p) const
+//{
+//    // external node인 경우 재귀 종료
+//    if(p.isExternal())
+//    {
+//        nodeSize++;
+//        return p;
+//    }
+//    // 재귀적으로 함수 호출
+//    if(p.v->identifier == K)
+//    { return p; }
+//    else if(p.v->identifier > K)
+//    { return insert_recursive(K, p.left()); }
+//    else
+//    { return insert_recursive(K, p.right()); }
+//}
 
 template < typename Key, typename Value >
 inline typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::sibling(const Key childe_key, const Position &p) const
@@ -221,26 +258,45 @@ inline typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >:
 template < typename Key, typename Value >
 void RedBlackTree< Key, Value >::restructuring(Position& p)
 {
+    puts("Restructuring!");
     Position p_parent = p.parent();
     Position p_grand_parent = p_parent.parent();
     Position t1, t2, t3, t4;
     Position par, left_child, right_child;
     bool grand_is_root = p_grand_parent.isroot();
     
+    
     if(*(p_grand_parent.v) < *(p.v))
     {
         left_child = p_grand_parent;
+        /*
+         o
+          \
+           o
+            \
+             o
+         */
         if(*(p_parent.v) < *(p.v))
         {
+            puts("1");
             par = p_parent;
             right_child = p;
+            
             //t2 달기
             t2 = p_parent.left();
             left_child.v->right = t2.v;
             t2.v->par = left_child.v;
         }
+        /*
+         o
+           \
+            o
+           /
+          o
+         */
         else
         {
+            puts("2");
             par = p;
             right_child = p_parent;
             // t2 달기
@@ -256,8 +312,16 @@ void RedBlackTree< Key, Value >::restructuring(Position& p)
     else
     {
         right_child = p_grand_parent;
+        /*
+            o
+           /
+         o
+          \
+           o
+         */
         if(*(p_parent.v) < *(p.v))
         {
+            puts("3");
             par = p;
             left_child = p_parent;
             // t2 달기
@@ -269,8 +333,16 @@ void RedBlackTree< Key, Value >::restructuring(Position& p)
             right_child.v->left = t3.v;
             t3.v->par = right_child.v;
         }
+        /*
+            o
+           /
+          o
+         /
+        o
+         */
         else
         {
+            puts("4");
             par = p_parent;
             left_child = p;
             // t2 달기
@@ -304,26 +376,34 @@ void RedBlackTree< Key, Value >::recoloring(Position& p)
 }
 
 template < typename Key, typename Value >
-int RedBlackTree< Key, Value >::find(const Key K, Value* V) const
+pair < Value, int > RedBlackTree< Key, Value >::find(const Key K) const
 {
-    Position rec = find_recursive(K, root());
-    if(rec.isExternal())
-        return -1;
-    *V = *rec;
-    return 1;
-    
+    pair < Position, int > rec = find_recursive(K, root(), 1);
+    if(rec.first.isExternal())
+    { return pair < Value, int >(Value(), -1); }
+    else
+    { return pair < Value, int >(rec.first.v->elt, rec.second); }
 }
 
 template < typename Key, typename Value >
-typename RedBlackTree< Key, Value >::Position RedBlackTree< Key, Value >::find_recursive(const Key K, const Position& p) const
+pair < typename RedBlackTree< Key, Value >::Position, int > RedBlackTree< Key, Value >::find_recursive(const Key K, const Position& p, int depth) const
 {
-    if(p.isExternal()) return p;
+    //cout << K << endl;
+    int p_id = 0;
+    if(!p.isExternal())
+    {
+        p_id = p.v->identifier;
+        //if(K == 1000799) cout << p_id << endl;
+    }
+    if(p.isroot())
+        printf("%d\n", p.v->identifier);
+    if(p.isExternal()) return pair < Position, int >(p, depth);;
     if(K == p.v->identifier)
-    { return p; }
+    { return pair < Position, int >(p, depth); }
     else if(K < p.v->identifier)
-    { return find_recursive(K, p.left()); }
+    { return find_recursive(K, p.left(), depth + 1); }
     else
-    { return find_recursive(K, p.right()); }
+    { return find_recursive(K, p.right(), depth + 1); }
 }
 
 //template < typename Key, typename Value >
